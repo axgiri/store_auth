@@ -1,3 +1,5 @@
 spring:
   application:
     name: oldlab-auth
+  server:
+    port: 51720
