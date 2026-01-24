@@ -2,31 +2,29 @@ package com.github.oldlabauth.entity;
 
 import java.util.UUID;
 
-import org.hibernate.annotations.UuidGenerator;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
+
+@Builder
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class Users{
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+public class User{
 
     @Id
-    @GeneratedValue
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
-
-    @Version
-    private Long version;
 
     @NotNull(message = "email cannot be null")
     @Email(message = "email should be valid")
@@ -43,8 +41,19 @@ public class Users{
     private Role roleEnum;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private boolean isActive;
 
     @Column(name = "is_not_blocked", nullable = false)
-    private Boolean isNotBlocked;
+    private boolean isNotBlocked;
+
+    @Version
+    private Long version;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    private Instant updatedAt;
 }

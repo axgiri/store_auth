@@ -1,5 +1,34 @@
 spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
   application:
     name: oldlab-auth
   server:
     port: 51720
+  kafka:
+    bootstrap-servers: "kafka:9092"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      compression-type: zstd
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        spring.json.add.type.headers: false
+
+jwt:
+  issuer: oldlab-auth
+  ttl-minutes: 15
+  refresh-ttl-days: 30
+  public-key: classpath:keys/public.pem
+  private-key: classpath:keys/private.pem
+
+app:
+  activation-ttl-minutes: 10
+  kafka:
+    topic:
+      message: message-topic
+    replicas: 3
+    min-insync-replicas: 2
+  

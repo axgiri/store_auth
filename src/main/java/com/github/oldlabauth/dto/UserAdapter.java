@@ -1,4 +1,4 @@
-package com.github.oldlabauth.security;
+package com.github.oldlabauth.dto;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,14 +9,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.github.oldlabauth.entity.Role;
-import com.github.oldlabauth.entity.Users;
+import com.github.oldlabauth.entity.User;
 
-public record UsersSecurity(
+public record UserAdapter(
         UUID id,
         String email,
         Role role,
-        Boolean isActive,
-        Boolean isNotBlocked,
+        boolean isActive,
+        boolean isNotBlocked,
         String password
 ) implements UserDetails {
 
@@ -35,29 +35,29 @@ public record UsersSecurity(
 
     @Override
     public boolean isEnabled() {
-        return Boolean.TRUE.equals(isActive);
+        return isActive;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return Boolean.TRUE.equals(isNotBlocked);
+        return isNotBlocked;
     }
 
     @Override
     public String getPassword() {
         return password;
     }
-    public static UsersSecurity fromUser(Users entity) {
+    public static UserAdapter fromUser(User entity) {
         if (entity == null) {
             throw new IllegalArgumentException("User entity cannot be null");
         }
 
-        return new UsersSecurity(
+        return new UserAdapter(
                 entity.getId(),
                 entity.getEmail(),
                 entity.getRoleEnum(),
-                entity.getIsActive(),
-                entity.getIsNotBlocked(),
+                entity.isActive(),
+                entity.isNotBlocked(),
                 entity.getPassword()
         );
     }
