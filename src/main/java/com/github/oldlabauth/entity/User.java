@@ -20,7 +20,10 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Table(name = "users", 
+    uniqueConstraints = @UniqueConstraint(columnNames = "email"),
+    indexes = @Index(name = "idx_user_email", columnList = "email")
+)
 public class User{
 
     @Id

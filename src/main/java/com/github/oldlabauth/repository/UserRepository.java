@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.github.oldlabauth.entity.User;
 
@@ -17,11 +16,10 @@ import com.github.oldlabauth.entity.User;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
-    Optional<User> findById(Long id);
+    Optional<User> findById(UUID id);
 
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Transactional
     @Query("UPDATE User u SET u.isActive = :isActive WHERE u.email = :email")
     int setActiveByEmail(@Param("email") String email, @Param("isActive") boolean isActive);
 

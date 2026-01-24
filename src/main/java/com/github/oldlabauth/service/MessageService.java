@@ -1,9 +1,9 @@
 package com.github.oldlabauth.service;
 
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import com.github.oldlabauth.dto.response.AuthResponse;
 import com.github.oldlabauth.entity.Message;
 import com.github.oldlabauth.exception.InvalidOtpException;
 import com.github.oldlabauth.exception.UserNotFoundException;
-import com.github.oldlabauth.mapper.UserMapper;
+import com.github.oldlabauth.dto.UserAdapter;
 import com.github.oldlabauth.repository.MessageRepository;
 import com.github.oldlabauth.repository.UserRepository;
 
@@ -31,8 +31,7 @@ public class MessageService {
     private final TokenService tokenService;
     private final EventService eventService;
     private final RefreshTokenService refreshTokenService;
-    private final UserMapper userMapper;
-    private final Random random = new Random();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${app.activation-ttl-minutes}")
     private int otpExpirationMinutes;
@@ -67,7 +66,7 @@ public class MessageService {
 
     public int setOtp() {
         log.debug("generating otp");
-        return 1000 + random.nextInt(9000);
+        return 1000 + SECURE_RANDOM.nextInt(9000);
     }
     
     public void sendOtp(String email) {
@@ -144,7 +143,7 @@ public class MessageService {
 
         var user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotFoundException("person not found with email: " + request.email()));
-        String token = tokenService.generateToken(userMapper.toAdapter(user));
+        String token = tokenService.generateToken(UserAdapter.fromUser(user));
         String refreshToken = refreshTokenService.issue(user);
         return new AuthResponse(token, refreshToken);
     }
@@ -179,7 +178,7 @@ public class MessageService {
 
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("person not found with email: " + email));
-        var userDetails = userMapper.toAdapter(user);
+        var userDetails = UserAdapter.fromUser(user);
         String token = tokenService.generateToken(userDetails);
         String refreshToken = refreshTokenService.issue(user);
         return new AuthResponse(token, refreshToken);

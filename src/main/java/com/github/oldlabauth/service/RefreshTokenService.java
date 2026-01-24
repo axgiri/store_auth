@@ -95,7 +95,7 @@ public class RefreshTokenService {
         repository.save(rt);
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void revokeAllForPerson(String refreshToken) {
         UUID userId = getUserFromToken(refreshToken).getId();
         repository.findByUserId(userId).forEach(rt -> {

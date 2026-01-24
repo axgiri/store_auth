@@ -11,13 +11,14 @@ import com.github.oldlabauth.entity.Role;
 import com.github.oldlabauth.entity.User;
 import com.github.oldlabauth.exception.UserAlreadyExistsException;
 import com.github.oldlabauth.exception.UserNotFoundException;
-import com.github.oldlabauth.mapper.UserMapper;
+import com.github.oldlabauth.dto.UserAdapter;
 import com.github.oldlabauth.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +36,6 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
     private final ObjectProvider<AuthenticationManager> authenticationManagerProvider;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
@@ -70,7 +70,7 @@ public class UserService {
         var user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_BY_EMAIL + request.email()));
 
-        var userDetails = userMapper.toAdapter(user);
+        var userDetails = UserAdapter.fromUser(user);
         String token = tokenService.generateToken(userDetails);
         String refreshToken = refreshTokenService.issue(user);
         return new AuthResponse(token, refreshToken);
@@ -79,7 +79,7 @@ public class UserService {
     public AuthResponse refreshAccessToken(RefreshRequest refreshToken) {
         var rotated = refreshTokenService.rotate(refreshToken.refreshToken());
         var user = rotated.person();
-        var userDetails = userMapper.toAdapter(user);
+        var userDetails = UserAdapter.fromUser(user);
 
         String access = tokenService.generateToken(userDetails);
 
@@ -135,8 +135,8 @@ public class UserService {
         log.debug("Password reset successfully for: {}", request.contact());
     }
     
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void delete(Long userId) {
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public void delete(UUID userId) {
         User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         userRepository.delete(user);

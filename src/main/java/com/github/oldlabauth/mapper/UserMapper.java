@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
+
     public UserResponse toResponse(User user) {
         if (user == null) {
             return null;
@@ -17,20 +18,6 @@ public class UserMapper {
                 user.getEmail()
         );
     }
-
-    public com.github.oldlabauth.dto.UserAdapter toAdapter(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return new com.github.oldlabauth.dto.UserAdapter(
-                user.getId(),
-                user.getEmail(),
-                user.getRoleEnum(),
-                user.isActive(),
-                user.isNotBlocked(),
-                user.getPassword()
-        );
-    }
 }
+
 
