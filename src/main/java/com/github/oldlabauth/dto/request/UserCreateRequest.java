@@ -7,8 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record UserCreateRequest(
-    @NotNull(message = "id cannot be null")
-    UUID id,
+    @NotNull(message = "idempotencyKey cannot be null")
+    UUID idempotencyKey,
     
     @NotNull(message = "email cannot be null")
     @Email(message = "email should be valid")

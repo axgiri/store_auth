@@ -1,4 +1,4 @@
-package com.github.oldlabauth.dto;
+package com.github.oldlabauth.entity;
 
 import java.util.Collection;
 import java.util.List;
@@ -7,9 +7,6 @@ import java.util.UUID;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.github.oldlabauth.entity.Role;
-import com.github.oldlabauth.entity.User;
 
 public record UserAdapter(
         UUID id,
@@ -53,7 +50,7 @@ public record UserAdapter(
         }
 
         return new UserAdapter(
-                entity.getId(),
+                entity.getIdempotencyKey(),
                 entity.getEmail(),
                 entity.getRoleEnum(),
                 entity.isActive(),

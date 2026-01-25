@@ -1,6 +1,6 @@
 package com.github.oldlabauth.service;
 
-import com.github.oldlabauth.dto.request.ContactRequest;
+import com.github.oldlabauth.dto.request.ContactEmailRequest;
 import com.github.oldlabauth.dto.request.LoginRequest;
 import com.github.oldlabauth.dto.request.RefreshRequest;
 import com.github.oldlabauth.dto.request.ResetPasswordRequest;
@@ -9,9 +9,9 @@ import com.github.oldlabauth.dto.request.UserCreateRequest;
 import com.github.oldlabauth.dto.response.AuthResponse;
 import com.github.oldlabauth.entity.Role;
 import com.github.oldlabauth.entity.User;
+import com.github.oldlabauth.entity.UserAdapter;
 import com.github.oldlabauth.exception.UserAlreadyExistsException;
 import com.github.oldlabauth.exception.UserNotFoundException;
-import com.github.oldlabauth.dto.UserAdapter;
 import com.github.oldlabauth.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -39,20 +39,20 @@ public class UserService {
     private final ObjectProvider<AuthenticationManager> authenticationManagerProvider;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
-    private final MessageService messageService;
+    private final OtpService otpService;
 
     private static final String USER_NOT_FOUND_BY_EMAIL = "User not found with email: ";
 
     @Transactional
     public void create(UserCreateRequest request) {
-        log.debug("Creating user with email: {} and id: {}", request.email(), request.id());
+        log.debug("Creating user with email: {} and idempotencyKey: {}", request.email(), request.idempotencyKey());
 
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new UserAlreadyExistsException("User with email " + request.email() + " already exists");
         }
 
         var user = User.builder()
-                .id(request.id())
+                .idempotencyKey(request.idempotencyKey())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .roleEnum(Role.USER)
@@ -104,22 +104,11 @@ public class UserService {
         log.debug("updated password for email: {}", request.email());
     }
 
-    public void requestPasswordReset(ContactRequest contactRequest) {
-        User user = userRepository.findByEmail(contactRequest.email())
-                .orElseThrow(
-                        () -> new UserNotFoundException(USER_NOT_FOUND_BY_EMAIL + contactRequest.email()));
-
-        int otp = messageService.setOtp();
-        messageService.saveOtpReset(user.getEmail(), otp, false);
-        messageService.sendOtpReset(user.getEmail());
-        log.debug("OTP sent to {}: {}", contactRequest.email(), otp);
-    }
-
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void resetPassword(ResetPasswordRequest request) {
         log.debug("Resetting password for: {}", request.contact());
 
-        messageService.validateOtpReset(request.contact(), request.otpReset());
+        otpService.validatePasswordResetOtp(request.contact(), request.otpReset());
 
         if (!request.isEmail()) {
             throw new IllegalArgumentException("You must reset password via email, phone reset is not implemented yet");
@@ -135,7 +124,6 @@ public class UserService {
         log.debug("Password reset successfully for: {}", request.contact());
     }
     
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void delete(UUID userId) {
         User user = userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
@@ -155,5 +143,13 @@ public class UserService {
         if (!passwordEncoder.matches(raw, encoded)) {
             throw new BadCredentialsException("invalid credentials");
         }
+    }
+
+    public void activateUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_BY_EMAIL + email));
+        user.setActive(true);
+        userRepository.save(user);
+        log.debug("Activated user with email: {}", email);
     }
 } //TODO: migrations

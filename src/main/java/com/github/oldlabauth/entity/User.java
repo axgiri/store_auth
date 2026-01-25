@@ -27,7 +27,7 @@ import java.time.Instant;
 public class User{
 
     @Id
-    private UUID id;
+    private UUID idempotencyKey;
 
     @NotNull(message = "email cannot be null")
     @Email(message = "email should be valid")

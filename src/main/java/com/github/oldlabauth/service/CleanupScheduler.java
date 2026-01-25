@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CleanupScheduler {
 
     private final RefreshTokenService refreshTokenService;
-    private final MessageService messageService;
     private final UserService userService;
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -24,13 +23,6 @@ public class CleanupScheduler {
             log.debug("Expired refresh tokens cleaned up");
         } catch (Exception e) {
             log.error("Error cleaning up refresh tokens", e);
-        }
-
-        try {
-            messageService.cleanupOldRecords();
-            log.debug("Old message records cleaned up");
-        } catch (Exception e) {
-            log.error("Error cleaning up message records", e);
         }
 
         try {

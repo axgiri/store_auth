@@ -18,10 +18,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findById(UUID id);
 
-
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("UPDATE User u SET u.isActive = :isActive WHERE u.email = :email")
-    int setActiveByEmail(@Param("email") String email, @Param("isActive") boolean isActive);
+    boolean existsByEmail(String email);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("DELETE FROM User u WHERE u.isActive = false AND u.createdAt < :cutoffDate")

@@ -1,6 +1,5 @@
 package com.github.oldlabauth.rest;
 
-import com.github.oldlabauth.dto.request.ContactRequest;
 import com.github.oldlabauth.dto.request.LoginRequest;
 import com.github.oldlabauth.dto.request.RefreshRequest;
 import com.github.oldlabauth.dto.request.ResetPasswordRequest;
@@ -73,13 +72,6 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
         log.debug("Delete attempt for userId: {}", userId);
         userService.delete(userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/request-password-reset")
-    public ResponseEntity<Void> requestPasswordReset(@Valid @RequestBody ContactRequest request){
-        log.debug("Password reset request for email: {}", request.email());
-        userService.requestPasswordReset(request);
         return ResponseEntity.noContent().build();
     }
 
