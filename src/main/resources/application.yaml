@@ -68,3 +68,6 @@ app:
     replicas: 3
     min-insync-replicas: 2
   
+logging:
+  level:
+    root: INFO

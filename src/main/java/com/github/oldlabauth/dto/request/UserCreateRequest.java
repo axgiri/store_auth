@@ -5,6 +5,7 @@ import com.github.oldlabauth.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record UserCreateRequest(
     @NotNull(message = "idempotencyKey cannot be null")
@@ -14,6 +15,7 @@ public record UserCreateRequest(
     @Email(message = "email should be valid")
     String email,
     
+    @Size(min = 6, message = "password must be at least 6 characters long")
     @NotBlank(message = "password cannot be blank")
     String password,
     

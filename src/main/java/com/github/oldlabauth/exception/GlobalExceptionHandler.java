@@ -37,4 +37,18 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ExceptionApi(Instant.now(), "ALGORITHM_NOT_FOUND", ex.getMessage()));
     }
+
+    @ExceptionHandler(AccountNotActivatedException.class)
+    public ResponseEntity<ExceptionApi> handleAccountNotActivated(AccountNotActivatedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ExceptionApi(Instant.now(), "ACCOUNT_NOT_ACTIVATED", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccountBlockedException.class)
+    public ResponseEntity<ExceptionApi> handleAccountBlocked(AccountBlockedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ExceptionApi(Instant.now(), "ACCOUNT_BLOCKED", ex.getMessage()));
+    }
 }

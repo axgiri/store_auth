@@ -10,6 +10,8 @@ import com.github.oldlabauth.dto.response.AuthResponse;
 import com.github.oldlabauth.entity.Role;
 import com.github.oldlabauth.entity.User;
 import com.github.oldlabauth.entity.UserAdapter;
+import com.github.oldlabauth.exception.AccountBlockedException;
+import com.github.oldlabauth.exception.AccountNotActivatedException;
 import com.github.oldlabauth.exception.UserAlreadyExistsException;
 import com.github.oldlabauth.exception.UserNotFoundException;
 import com.github.oldlabauth.repository.UserRepository;
@@ -64,11 +66,18 @@ public class UserService {
     }
 
     public AuthResponse authenticate(LoginRequest request) {
-        authenticationManagerProvider.getObject()
-                .authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-
         var user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_BY_EMAIL + request.email()));
+
+        if (!user.isActive()) {
+            throw new AccountNotActivatedException("Account is not activated");
+        }
+        if (!user.isNotBlocked()) {
+            throw new AccountBlockedException("Account is blocked");
+        }
+
+        authenticationManagerProvider.getObject()
+                .authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         var userDetails = UserAdapter.fromUser(user);
         String token = tokenService.generateToken(userDetails);
@@ -152,4 +161,4 @@ public class UserService {
         userRepository.save(user);
         log.debug("Activated user with email: {}", email);
     }
-} //TODO: migrations
+}
