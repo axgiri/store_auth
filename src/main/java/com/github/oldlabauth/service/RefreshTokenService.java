@@ -7,6 +7,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.UUID;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,9 @@ public class RefreshTokenService {
     
     @Value("${jwt.refresh-ttl-days:30}")
     private int refreshExpiresDays;
+
+    @Value("${jwt.refresh-token-secret}")
+    private String refreshTokenSecret;
     
     private static final String REFRESH_TOKEN_NOT_FOUND = "refresh token not found";
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -54,6 +59,7 @@ public class RefreshTokenService {
 
     @Transactional
     public RotatedToken rotate(String token) {
+        verifySignature(token);
         String currentHash = hash(token);
 
         RefreshToken currentToken = repository.findByTokenHash(currentHash)
@@ -83,6 +89,7 @@ public class RefreshTokenService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void revoke(String token) {
         log.debug("revoking token");
+        verifySignature(token);
         String hash = hash(token);
         RefreshToken rt = repository.findByTokenHash(hash)
             .orElseThrow(() -> new InvalidTokenException(REFRESH_TOKEN_NOT_FOUND));
@@ -98,13 +105,14 @@ public class RefreshTokenService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void revokeAllForPerson(String refreshToken) {
         UUID userId = getUserFromToken(refreshToken).getIdempotencyKey();
-        repository.findByUserId(userId).forEach(rt -> {
+        repository.findByUserIdempotencyKey(userId).forEach(rt -> {
             rt.setRevoked(true);
             repository.save(rt);
         });
     }
     
     public User getUserFromToken(String rawToken) {
+        verifySignature(rawToken);
         String hash = hash(rawToken);
         RefreshToken rt = repository.findByTokenHash(hash)
                 .orElseThrow(() -> new InvalidTokenException(REFRESH_TOKEN_NOT_FOUND));
@@ -116,7 +124,35 @@ public class RefreshTokenService {
     private String generateToken() {
         byte[] bytes = new byte[64];
         RANDOM.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String payload = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String signature = sign(payload);
+        return payload + "." + signature;
+    }
+
+    private String sign(String payload) {
+        try {
+            Mac hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(refreshTokenSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            hmac.init(secretKey);
+            byte[] signatureBytes = hmac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(signatureBytes);
+        } catch (Exception e) {
+            throw new NoSuchAlgorithmException("Failed to sign refresh token", e);
+        }
+    }
+
+    private void verifySignature(String token) {
+        String[] parts = token.split("\\.");
+        if (parts.length != 2) {
+            throw new InvalidTokenException("invalid token format");
+        }
+        String payload = parts[0];
+        String signature = parts[1];
+        String expectedSignature = sign(payload);
+        
+        if (!MessageDigest.isEqual(signature.getBytes(StandardCharsets.UTF_8), expectedSignature.getBytes(StandardCharsets.UTF_8))) {
+            throw new InvalidTokenException("invalid refresh token signature");
+        }
     }
 
     private String hash(String raw) {

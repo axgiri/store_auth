@@ -1,3 +1,6 @@
+server:
+  port: 51720
+
 spring:
   threads:
     virtual:
@@ -6,13 +9,31 @@ spring:
     property-naming-strategy: SNAKE_CASE
   application:
     name: oldlab-auth
-  server:
-    port: 51720
+  datasource:
+    url: jdbc:postgresql://oldlab-auth-db:5432/oldlabauthdb
+    username: postgres
+    password: 1
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
   data:
     redis:
       host: redis
       port: 6379
-      password: ${REDIS_PASSWORD:1234567890abcdefghijklmnopqrstuvwxyz} #that password is just for local dev
+      password: 123456789qwerty123456789qwerty123456789qwerty #that password is just for local dev
       timeout: 2000ms
       lettuce:
         pool:
@@ -35,6 +56,7 @@ jwt:
   issuer: oldlab-auth
   ttl-minutes: 15
   refresh-ttl-days: 30
+  refresh-token-secret: 123456789qwerty123456789qwerty123456789qwerty
   public-key: classpath:keys/public.pem
   private-key: classpath:keys/private.pem
 

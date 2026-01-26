@@ -9,6 +9,7 @@ import com.github.oldlabauth.dto.request.OtpRequest;
 import com.github.oldlabauth.dto.request.OtpValidationRequest;
 import com.github.oldlabauth.dto.response.AuthResponse;
 import com.github.oldlabauth.entity.OtpType;
+import com.github.oldlabauth.entity.User;
 import com.github.oldlabauth.entity.UserAdapter;
 import com.github.oldlabauth.exception.InvalidOtpException;
 import com.github.oldlabauth.exception.UserNotFoundException;
@@ -25,7 +26,6 @@ public class OtpService {
 
     private final OtpRedisRepository otpRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
     private final EventService eventService;
@@ -79,7 +79,11 @@ public class OtpService {
         log.info("Activating account for: {}", maskContactForLogging(email));
         
         validate(OtpValidationRequest.forEmailActivation(email, otp));
-        userService.activateUser(email);
+        
+        var user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("User not found: " + email));
+        user.setActive(true);
+        userRepository.save(user);
         
         log.info("Account activated successfully: {}", maskContactForLogging(email));
     }
@@ -110,7 +114,7 @@ public class OtpService {
     }
 
     public void validatePasswordResetOtp(String email, int otp) {
-        validate(OtpValidationRequest.forEmailActivation(email, otp));
+        validate(OtpValidationRequest.forEmailPasswordReset(email, otp));
     }
 
     public int generateOtp() {

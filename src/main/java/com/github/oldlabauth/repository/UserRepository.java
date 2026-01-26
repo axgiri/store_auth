@@ -16,7 +16,7 @@ import com.github.oldlabauth.entity.User;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
-    Optional<User> findById(UUID id);
+    Optional<User> findByIdempotencyKey(UUID idempotencyKey);
 
     boolean existsByEmail(String email);
 

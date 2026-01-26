@@ -16,7 +16,7 @@ import com.github.oldlabauth.entity.RefreshToken;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByTokenHash(String tokenHash);
 
-    List<RefreshToken> findByUserId(UUID userId);
+    List<RefreshToken> findByUserIdempotencyKey(UUID userIdempotencyKey);
 
     @Modifying
     @Query("DELETE FROM RefreshToken r WHERE r.expiresAt < :cutoffDate")

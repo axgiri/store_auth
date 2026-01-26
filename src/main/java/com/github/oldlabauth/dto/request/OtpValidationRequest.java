@@ -30,6 +30,16 @@ public record OtpValidationRequest(
             otp
         );
     }
+
+    public static OtpValidationRequest forEmailPasswordReset(String email, int otp) {
+        return new OtpValidationRequest(
+            MessageChannelEnum.EMAIL, 
+            email, 
+            OtpType.RESET_PASSWORD, 
+            otp
+        );
+    }
+
     public static OtpValidationRequest forEmailLogin(String email, int otp) {
         return new OtpValidationRequest(
             MessageChannelEnum.EMAIL, 
