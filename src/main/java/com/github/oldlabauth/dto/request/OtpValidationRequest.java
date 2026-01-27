@@ -8,13 +8,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record OtpValidationRequest(
-    @NotNull(message = "channel cannot be null")
+    
     MessageChannelEnum channel,
 
     @NotNull(message = "contact cannot be null")
     String contact,
 
-    @NotNull(message = "otp type cannot be null")
     OtpType otpType,
 
     @NotNull(message = "otp cannot be null")

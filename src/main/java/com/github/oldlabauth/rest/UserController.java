@@ -38,20 +38,20 @@ public class UserController {
         return ResponseEntity.ok(userService.authenticate(request));
     }
 
-    @PostMapping("/refresh")
+    @PutMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         log.debug("Token refresh attempt");
         return ResponseEntity.ok(userService.refreshAccessToken(request));
     }
 
-    @PostMapping("/revoke")
+    @PutMapping("/revoke")
     public ResponseEntity<Void> revoke(@Valid @RequestBody RefreshRequest request) {
         log.debug("Token revoke attempt");
         userService.revoke(request);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/revoke/all")
+    @PutMapping("/revoke/all")
     public ResponseEntity<Void> revokeAll(@Valid @RequestBody RefreshRequest request) {
         log.debug("Revoke all tokens attempt");
         userService.revokeAll(request);
@@ -67,10 +67,10 @@ public class UserController {
     }
 
     // @PreAuthorize("@accessControlService.isSelf(authentication, #id) or @accessControlService.isAdmin(authentication)")
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<Void> delete(@PathVariable UUID userId) {
-        log.debug("Delete attempt for userId: {}", userId);
-        userService.delete(userId);
+    @DeleteMapping("/delete/{idempotencyKey}")
+    public ResponseEntity<Void> delete(@PathVariable UUID idempotencyKey) {
+        log.debug("Delete attempt for userId: {}", idempotencyKey);
+        userService.delete(idempotencyKey);
         return ResponseEntity.noContent().build();
     }
 

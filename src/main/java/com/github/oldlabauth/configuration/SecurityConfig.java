@@ -48,20 +48,21 @@ public class SecurityConfig {
                         "/api/v1/users/create",
                         "/api/v1/users/login",
                         "/api/v1/users/refresh",
-                        "/api/v1/users/revoke",
-                        "/api/v1/users/revoke/all",
-                        "/api/v1/users/update/password",
-                        "/api/v1/users/delete/**",
-                        "/api/v1/users/reset-password",
+                        // "/api/v1/users/revoke",
+                        // "/api/v1/users/revoke/all",
+                        // "/api/v1/users/update/password",
+                        // "/api/v1/users/delete/**",
                         "/api/v1/otp/email/activation/send",
                         "/api/v1/otp/email/activation/resend",
                         "/api/v1/otp/email/activate",
                         "/api/v1/otp/email/login/send/**",
                         "/api/v1/otp/email/login",
+                        "/api/v1/users/reset-password",
                         "/api/v1/otp/email/password-reset/send/**",
                         // "/actuator/**", /prometheus/** i will implement it later TODO
                         "/error"
                     ).permitAll()
+                    .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));
             return http.build();

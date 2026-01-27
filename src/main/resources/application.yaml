@@ -53,7 +53,7 @@ spring:
         spring.json.add.type.headers: false
 
 jwt:
-  issuer: oldlab-auth
+  issuer: axgiri@proton.me
   ttl-minutes: 15
   refresh-ttl-days: 30
   refresh-token-secret: 123456789qwerty123456789qwerty123456789qwerty

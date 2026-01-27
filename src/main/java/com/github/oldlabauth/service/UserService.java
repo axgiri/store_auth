@@ -133,11 +133,11 @@ public class UserService {
         log.debug("Password reset successfully for: {}", request.contact());
     }
     
-    public void delete(UUID userId) {
-        User user = userRepository.findById(userId)
-        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+    public void delete(UUID idempotencyKey) {
+        User user = userRepository.findByIdempotencyKey(idempotencyKey)
+        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + idempotencyKey));
         userRepository.delete(user);
-        log.debug("Deleted user with id: {}", userId);
+        log.debug("Deleted user with id: {}", idempotencyKey);
     }
 
     @Transactional
