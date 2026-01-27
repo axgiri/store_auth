@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS users (
+    idempotency_key UUID PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role_enum VARCHAR(50) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_not_blocked BOOLEAN NOT NULL DEFAULT TRUE,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT uk_users_email UNIQUE (email)
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
