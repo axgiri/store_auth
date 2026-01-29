@@ -1,4 +1,4 @@
-package com.github.oldlabauth.rest;
+package com.github.oldlabauth.web;
 
 import com.github.oldlabauth.dto.request.LoginRequest;
 import com.github.oldlabauth.dto.request.RefreshRequest;
@@ -6,7 +6,9 @@ import com.github.oldlabauth.dto.request.ResetPasswordRequest;
 import com.github.oldlabauth.dto.request.UpdatePasswordRequest;
 import com.github.oldlabauth.dto.request.UserCreateRequest;
 import com.github.oldlabauth.dto.response.AuthResponse;
-import com.github.oldlabauth.service.UserService;
+import com.github.oldlabauth.service.AuthenticationService;
+import com.github.oldlabauth.service.PasswordService;
+import com.github.oldlabauth.service.RegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,38 +25,40 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
+    private final RegistrationService registrationService;
+    private final PasswordService passwordService;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> create(@RequestBody @Valid UserCreateRequest request) {
-        userService.create(request);
+        registrationService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         log.debug("Login attempt for email: {}", request.email());
-        return ResponseEntity.ok(userService.authenticate(request));
+        return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
     @PutMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         log.debug("Token refresh attempt");
-        return ResponseEntity.ok(userService.refreshAccessToken(request));
+        return ResponseEntity.ok(authenticationService.refreshAccessToken(request));
     }
 
     @PutMapping("/revoke")
     public ResponseEntity<Void> revoke(@Valid @RequestBody RefreshRequest request) {
         log.debug("Token revoke attempt");
-        userService.revoke(request);
+        authenticationService.revoke(request);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/revoke/all")
     public ResponseEntity<Void> revokeAll(@Valid @RequestBody RefreshRequest request) {
         log.debug("Revoke all tokens attempt");
-        userService.revokeAll(request);
+        authenticationService.revokeAll(request);
         return ResponseEntity.noContent().build();
     }
     
@@ -62,7 +66,7 @@ public class UserController {
     @PutMapping("/update/password")
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
         log.debug("Password update attempt for email: {}", request.email());
-        userService.updatePassword(request);
+        passwordService.updatePassword(request);
         return ResponseEntity.noContent().build();
     }
 
@@ -70,14 +74,14 @@ public class UserController {
     @DeleteMapping("/delete/{idempotencyKey}")
     public ResponseEntity<Void> delete(@PathVariable UUID idempotencyKey) {
         log.debug("Delete attempt for userId: {}", idempotencyKey);
-        userService.delete(idempotencyKey);
+        registrationService.delete(idempotencyKey);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request){
         log.debug("Password reset attempt for email: {}", request.contact());
-        userService.resetPassword(request);
+        passwordService.resetPassword(request);
         return ResponseEntity.noContent().build();
     }
 }

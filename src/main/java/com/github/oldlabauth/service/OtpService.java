@@ -9,7 +9,6 @@ import com.github.oldlabauth.dto.request.OtpRequest;
 import com.github.oldlabauth.dto.request.OtpValidationRequest;
 import com.github.oldlabauth.dto.response.AuthResponse;
 import com.github.oldlabauth.entity.OtpType;
-import com.github.oldlabauth.entity.User;
 import com.github.oldlabauth.entity.UserAdapter;
 import com.github.oldlabauth.exception.InvalidOtpException;
 import com.github.oldlabauth.exception.UserNotFoundException;

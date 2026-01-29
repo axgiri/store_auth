@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CleanupScheduler {
 
     private final RefreshTokenService refreshTokenService;
-    private final UserService userService;
+    private final RegistrationService registrationService;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void cleanup() {
@@ -26,7 +26,7 @@ public class CleanupScheduler {
         }
 
         try {
-            userService.cleanupUnactivatedUsers();
+            registrationService.cleanupUnactivatedUsers();
             log.debug("Unactivated users cleaned up");
         } catch (Exception e) {
             log.error("Error cleaning up unactivated users", e);

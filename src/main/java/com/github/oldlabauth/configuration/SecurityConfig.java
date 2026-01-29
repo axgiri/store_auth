@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.github.oldlabauth.entity.UserAdapter;
 import com.github.oldlabauth.repository.UserRepository;
@@ -59,7 +60,7 @@ public class SecurityConfig {
                         "/api/v1/otp/email/login",
                         "/api/v1/users/reset-password",
                         "/api/v1/otp/email/password-reset/send/**",
-                        // "/actuator/**", /prometheus/** i will implement it later TODO
+                        // "/actuator/prometheus/** i will implement it later TODO
                         "/error"
                     ).permitAll()
                     .anyRequest().authenticated()
@@ -91,7 +92,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> repository.findByEmail(username)
+        return username -> repository.findByIdempotencyKey(UUID.fromString(username))
             .map(UserAdapter::fromUser)
             .orElseThrow(() -> new UsernameNotFoundException("user with email " + username + " not found"));
     }

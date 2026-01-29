@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public record UserAdapter(
         UUID id,
-        String email,
         Role role,
         boolean isActive,
         boolean isNotBlocked,
@@ -27,7 +26,7 @@ public record UserAdapter(
 
     @Override
     public String getUsername() {
-        return email;
+        return id.toString();
     }
 
     @Override
@@ -51,7 +50,6 @@ public record UserAdapter(
 
         return new UserAdapter(
                 entity.getIdempotencyKey(),
-                entity.getEmail(),
                 entity.getRoleEnum(),
                 entity.isActive(),
                 entity.isNotBlocked(),

@@ -1,4 +1,4 @@
-package com.github.oldlabauth.rest;
+package com.github.oldlabauth.web;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
