@@ -8,9 +8,9 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
   application:
-    name: oldlab-auth
+    name: store-auth
   datasource:
-    url: jdbc:postgresql://oldlab-auth-db:5432/oldlabauthdb
+    url: jdbc:postgresql://store-auth-db:5432/storeauthdb
     username: postgres
     password: 1
     driver-class-name: org.postgresql.Driver

@@ -1,0 +1,116 @@
+package com.github.storeauth.configuration;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.github.storeauth.entity.UserAdapter;
+import com.github.storeauth.repository.UserRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final UserRepository repository;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        try {
+            http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
+                        //that is public endpoints for gateway and auth service for tests.
+                        //but some endpoints will be open, due to there is no zero trust between services yet
+                        //i will implement zero trust later. but now my priority is to finish refactoring with observability and tests
+                        "/api/v1/users/create",
+                        "/api/v1/users/login",
+                        "/api/v1/users/refresh",
+                        // "/api/v1/users/revoke",
+                        // "/api/v1/users/revoke/all",
+                        // "/api/v1/users/update/password",
+                        // "/api/v1/users/delete/**",
+                        "/api/v1/otp/email/activation/send",
+                        "/api/v1/otp/email/activation/resend",
+                        "/api/v1/otp/email/activate",
+                        "/api/v1/otp/email/login/send/**",
+                        "/api/v1/otp/email/login",
+                        "/api/v1/users/reset-password",
+                        "/api/v1/otp/email/password-reset/send/**",
+                        // "/actuator/prometheus/** i will implement it later TODO
+                        "/error"
+                    ).permitAll()
+                    .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));
+            return http.build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not configure Spring Security", e);
+        }
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:5173",
+            "http://localhost:51730",
+            "http://localhost:51740",
+            "http://localhost:51750"
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> repository.findByIdempotencyKey(UUID.fromString(username))
+            .map(UserAdapter::fromUser)
+            .orElseThrow(() -> new UsernameNotFoundException("user with email " + username + " not found"));
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config){
+        return config.getAuthenticationManager();
+    }
+}

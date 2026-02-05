@@ -1,8 +1,8 @@
 services:
-  oldlab-auth:
+  store-auth:
     image: eclipse-temurin:21-jdk-alpine
-    container_name: oldlab-auth
-    hostname: oldlab-auth
+    container_name: store-auth
+    hostname: store-auth
     ports:
       - "51720:51720"
     volumes:
@@ -10,9 +10,9 @@ services:
     working_dir: /app
     command: ./gradlew bootRun
     depends_on:
-      - oldlab-auth-db
+      - store-auth-db
     networks:
-      - oldlab-network
+      - store-network
     restart: on-failure:3
     deploy:
       restart_policy:
@@ -21,19 +21,19 @@ services:
         max_attempts: 3
         window: 120s
         
-  oldlab-auth-db:
+  store-auth-db:
     image: postgres:13-alpine
-    container_name: oldlab-auth-db
+    container_name: store-auth-db
     ports:
       - "51721:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1
-      POSTGRES_DB: oldlabauthdb
+      POSTGRES_DB: storeauthdb
     volumes:
-      - oldlab-auth-db_data:/var/lib/postgresql/data
+      - store-auth-db_data:/var/lib/postgresql/data
     networks:
-      - oldlab-network
+      - store-network
     restart: on-failure:3
     deploy:
       restart_policy:
@@ -42,30 +42,9 @@ services:
         max_attempts: 3
         window: 120s
 
-# auth-db:
-#     image: postgres:13-alpine
-#     container_name: auth-db
-#     ports:
-#       - "51721:5432"
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: 1
-#       POSTGRES_DB: authdb
-#     volumes:
-#       - auth_db_data:/var/lib/postgresql/data
-#     networks:
-#       - oldlab-network
-#     restart: on-failure:3
-#     deploy:
-#       restart_policy:
-#         condition: on-failure
-#         delay: 5s
-#         max_attempts: 3
-#         window: 120s
-
 networks:
-  oldlab-network:
+  store-network:
     external: true
 
 volumes:
-  oldlab-auth-db_data:
+  store-auth-db_data:
