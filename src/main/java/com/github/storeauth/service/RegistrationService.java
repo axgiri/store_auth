@@ -47,6 +47,11 @@ public class RegistrationService {
         userRepository.save(user);
     }
 
+    public boolean validateEmail(String email) {
+        log.debug("Validating email: {}", email);
+        return !userRepository.existsByEmail(email);
+    }
+
     public void activateUser(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_BY_EMAIL + email));

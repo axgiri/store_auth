@@ -6,22 +6,21 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.storeauth.dto.request.LoginRequest;
 import com.github.storeauth.dto.request.RefreshRequest;
 import com.github.storeauth.dto.request.ResetPasswordRequest;
 import com.github.storeauth.dto.request.UpdatePasswordRequest;
-import com.github.storeauth.dto.request.UserCreateRequest;
 import com.github.storeauth.dto.response.AuthResponse;
 import com.github.storeauth.service.AuthenticationService;
 import com.github.storeauth.service.PasswordService;
@@ -37,11 +36,9 @@ public class UserController {
     private final RegistrationService registrationService;
     private final PasswordService passwordService;
 
-    @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Void> create(@RequestBody @Valid UserCreateRequest request) {
-        registrationService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @GetMapping("/is-email-available")
+    public ResponseEntity<Boolean> validateEmail(@RequestParam String email) {
+        return ResponseEntity.ok(registrationService.validateEmail(email));
     }
 
     @PostMapping("/login")
