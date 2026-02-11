@@ -40,4 +40,12 @@ public class JwtConfiguration {
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(publicKey).build();
     }
+
+    @Bean
+    public JWKSource<SecurityContext> jwkSource() {
+        JWK jwk = new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .build();
+        return new ImmutableJWKSet<>(new JWKSet(jwk));
+    }
 }
