@@ -54,11 +54,7 @@ spring:
     consumer:
       group-id: store-auth-group
       auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: com.github.storeauth.dto.request
-        spring.json.use.type.headers: false
+      enable-auto-commit: false
 
 jwt:
   issuer: axgiri@proton.me
@@ -81,3 +77,6 @@ app:
 logging:
   level:
     root: INFO
+    org:
+      apache:
+        kafka: WARN

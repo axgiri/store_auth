@@ -7,9 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,19 +68,18 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     
-    //TODO: @PreAuthorize("@accessControlService.isSelfByEmail(authentication, #request.email)")
-    @PutMapping("/update/password")
+    @PreAuthorize("@accessControlService.isSelfByEmail(authentication, #request.email)")
+    @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
         log.debug("Password update attempt for email: {}", request.email());
         passwordService.updatePassword(request);
         return ResponseEntity.noContent().build();
     }
 
-    // @PreAuthorize("@accessControlService.isSelf(authentication, #id) or @accessControlService.isAdmin(authentication)")
-    @DeleteMapping("/delete/{idempotencyKey}")
-    public ResponseEntity<Void> delete(@PathVariable UUID idempotencyKey) {
-        log.debug("Delete attempt for userId: {}", idempotencyKey);
-        registrationService.delete(idempotencyKey);
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal(expression = "claims['sub']") String userId) {
+        log.debug("Delete attempt for userId: {}", userId);
+        registrationService.delete(UUID.fromString(userId));
         return ResponseEntity.noContent().build();
     }
 

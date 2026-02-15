@@ -49,6 +49,7 @@ public class SecurityConfig {
                         "/api/v1/users/create",
                         "/api/v1/users/login",
                         "/api/v1/users/refresh",
+                        "/api/v1/users/is-email-available",
                         // "/api/v1/users/revoke",
                         // "/api/v1/users/revoke/all",
                         // "/api/v1/users/update/password",

@@ -25,7 +25,7 @@ public class RegistrationConsumer {
     )
     public void handleRegistration(
             @Payload UserCreateRequest request,
-            @Header(KafkaHeaders.RECEIVED_KEY) String key,
+            @Header(name = KafkaHeaders.RECEIVED_KEY, required = false) String key,
             @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
             @Header(KafkaHeaders.OFFSET) long offset
     ) {
