@@ -27,7 +27,7 @@ public class EventService {
     private final KafkaTemplate<String, NotificationMessage> kafkaTemplate;
     private final KafkaTemplate<String, RegistrationCompensateMessage> registrationCompensateKafkaTemplate;
 
-    public void sendOtp(MessageChannelEnum channel, String destination, int otp) {
+    void sendOtp(MessageChannelEnum channel, String destination, int otp) {
         switch (channel) {
             case SMS -> sendSmsOtp(destination, otp);
             case EMAIL -> sendEmailOtp(destination, otp);

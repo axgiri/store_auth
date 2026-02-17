@@ -43,7 +43,7 @@ public class RefreshTokenService {
     public record RotatedToken(User person, String token) {}
 
     @Transactional
-    public String issue(User user) {
+    String issue(User user) {
         String raw = generateToken();
         String tokenHash = hash(raw);
 
@@ -58,7 +58,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public RotatedToken rotate(String token) {
+    RotatedToken rotate(String token) {
         verifySignature(token);
         String currentHash = hash(token);
 
@@ -87,7 +87,7 @@ public class RefreshTokenService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void revoke(String token) {
+    void revoke(String token) {
         log.debug("revoking token");
         verifySignature(token);
         String hash = hash(token);
@@ -103,7 +103,7 @@ public class RefreshTokenService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void revokeAllForPerson(String refreshToken) {
+    void revokeAllForPerson(String refreshToken) {
         UUID userId = getUserFromToken(refreshToken).getIdempotencyKey();
         repository.findByUserIdempotencyKey(userId).forEach(rt -> {
             rt.setRevoked(true);
@@ -111,7 +111,7 @@ public class RefreshTokenService {
         });
     }
     
-    public User getUserFromToken(String rawToken) {
+    private User getUserFromToken(String rawToken) {
         verifySignature(rawToken);
         String hash = hash(rawToken);
         RefreshToken rt = repository.findByTokenHash(hash)
@@ -166,7 +166,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void cleanupExpiredTokens() {
+    void cleanupExpiredTokens() {
         repository.deleteOlderThan(Instant.now());
     }
 }

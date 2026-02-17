@@ -18,7 +18,7 @@ public class RegistrationChoreograph {
     private final RegistrationService registrationService;
     private final EventService eventService;
 
-    public void createUser(UserCreateRequest request){
+    void createUser(UserCreateRequest request){
         if(!registrationService.validateEmail(request.email())) {
             return;
         }

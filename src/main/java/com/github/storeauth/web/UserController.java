@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     
-    @PreAuthorize("@accessControlService.isSelfByEmail(authentication, #request.email)")
+    @PreAuthorize("@accessControlService.isSelfByEmail(#request.email)")
     @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
         log.debug("Password update attempt for email: {}", request.email());

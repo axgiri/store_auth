@@ -39,7 +39,7 @@ public class OtpService {
         log.debug("OTP sent successfully");
     }
 
-    public void validate(OtpValidationRequest request) {
+    void validate(OtpValidationRequest request) {
         log.debug("Validating OTP: type={}, channel={}, contact={}", request.otpType(), request.channel(), maskContactForLogging(request.contact()));
         int storedOtp = otpRepository.find(request.channel(), request.contact(), request.otpType())
                 .orElseThrow(() -> new InvalidOtpException("OTP not found or expired for: " + maskContactForLogging(request.contact())));
@@ -112,7 +112,7 @@ public class OtpService {
         send(OtpRequest.email(email, OtpType.RESET_PASSWORD));
     }
 
-    public void validatePasswordResetOtp(String email, int otp) {
+    void validatePasswordResetOtp(String email, int otp) {
         validate(OtpValidationRequest.forEmailPasswordReset(email, otp));
     }
 

@@ -24,6 +24,7 @@ public class RegistrationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EventService eventService;
 
     private static final String USER_NOT_FOUND_BY_EMAIL = "User not found with email: ";
 
@@ -60,15 +61,17 @@ public class RegistrationService {
         log.debug("Activated user with email: {}", email);
     }
 
+    @Transactional
     public void delete(UUID idempotencyKey) {
         User user = userRepository.findByIdempotencyKey(idempotencyKey)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + idempotencyKey));
         userRepository.delete(user);
+        eventService.compensateRegistration(idempotencyKey);
         log.debug("Deleted user with id: {}", idempotencyKey);
     }
 
     @Transactional
-    public void cleanupUnactivatedUsers() {
+    void cleanupUnactivatedUsers() {
         Instant cutoffDate = Instant.now().minusSeconds(60L * 60 * 24 * 7); // 7 days
         int count = userRepository.deleteByIsActiveFalseAndCreatedAtBefore(cutoffDate);
         //TODO: call ol_client to delete related data

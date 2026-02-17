@@ -33,24 +33,21 @@ spring:
     redis:
       host: redis
       port: 6379
-      password: 123456789qwerty123456789qwerty123456789qwerty #that password is just for local dev
       timeout: 2000ms
       lettuce:
         pool:
           max-active: 8
           max-idle: 8
           min-idle: 2
+
   kafka:
     bootstrap-servers: "kafka:9092"
     producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       compression-type: zstd
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
-        spring.json.add.type.headers: false
     consumer:
       group-id: store-auth-group
       auto-offset-reset: earliest

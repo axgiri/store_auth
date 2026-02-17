@@ -56,17 +56,6 @@ public class OtpRedisRepository {
         return Boolean.TRUE.equals(deleted);
     }
 
-    public boolean exists(MessageChannelEnum channel, String contact, OtpType otpType) {
-        String key = buildKey(channel, contact, otpType);
-        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
-    }
-
-    public long getRemainingTtlSeconds(MessageChannelEnum channel, String contact, OtpType otpType) {
-        String key = buildKey(channel, contact, otpType);
-        Long ttl = redisTemplate.getExpire(key);
-        return ttl != null ? ttl : -1;
-    }
-
     private String buildKey(MessageChannelEnum channel, String contact, OtpType otpType) {
         return String.join(KEY_SEPARATOR, 
             KEY_PREFIX, 
