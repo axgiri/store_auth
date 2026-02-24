@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,14 +29,14 @@ public class PasswordService {
 
     private static final String USER_NOT_FOUND_BY_EMAIL = "User not found with email: ";
 
-    public void updatePassword(UpdatePasswordRequest request) {
-        log.debug("updating password for email: {}", request.email());
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_BY_EMAIL + request.email()));
+    public void updatePassword(UpdatePasswordRequest request, UUID userId) {
+        log.debug("updating password for userId: {}", userId);
+        User user = userRepository.findByIdempotencyKey(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         verifyPassword(request.oldPassword(), user.getPassword());
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
-        log.debug("updated password for email: {}", request.email());
+        log.debug("updated password for userId: {}", userId);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)

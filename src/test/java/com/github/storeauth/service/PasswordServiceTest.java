@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,17 +41,19 @@ class PasswordServiceTest {
         @Test
         @DisplayName("encodes and saves new password when old password matches")
         void updatesPassword() {
+            var userId = UUID.randomUUID();
             var user = User.builder()
+                    .idempotencyKey(userId)
                     .email("u@test.com")
                     .password("old-encoded")
                     .roleEnum(Role.USER)
                     .build();
 
-            when(userRepository.findByEmail("u@test.com")).thenReturn(Optional.of(user));
+            when(userRepository.findByIdempotencyKey(userId)).thenReturn(Optional.of(user));
             when(passwordEncoder.matches("old-raw", "old-encoded")).thenReturn(true);
             when(passwordEncoder.encode("new-raw")).thenReturn("new-encoded");
 
-            passwordService.updatePassword(new UpdatePasswordRequest("u@test.com", "old-raw", "new-raw"));
+            passwordService.updatePassword(new UpdatePasswordRequest("old-raw", "new-raw"), userId);
 
             verify(userRepository).save(user);
         }
@@ -58,22 +61,24 @@ class PasswordServiceTest {
         @Test
         @DisplayName("throws BadCredentialsException when old password wrong")
         void throws_whenOldPasswordWrong() {
-            var user = User.builder().email("u@test.com").password("encoded").build();
-            when(userRepository.findByEmail("u@test.com")).thenReturn(Optional.of(user));
+            var userId = UUID.randomUUID();
+            var user = User.builder().idempotencyKey(userId).email("u@test.com").password("encoded").build();
+            when(userRepository.findByIdempotencyKey(userId)).thenReturn(Optional.of(user));
             when(passwordEncoder.matches("wrong", "encoded")).thenReturn(false);
 
             assertThatThrownBy(() ->
-                    passwordService.updatePassword(new UpdatePasswordRequest("u@test.com", "wrong", "new")))
+                    passwordService.updatePassword(new UpdatePasswordRequest("wrong", "new"), userId))
                     .isInstanceOf(BadCredentialsException.class);
         }
 
         @Test
         @DisplayName("throws UserNotFoundException when user missing")
         void throws_whenUserMissing() {
-            when(userRepository.findByEmail("x@test.com")).thenReturn(Optional.empty());
+            var userId = UUID.randomUUID();
+            when(userRepository.findByIdempotencyKey(userId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                    passwordService.updatePassword(new UpdatePasswordRequest("x@test.com", "old", "new")))
+                    passwordService.updatePassword(new UpdatePasswordRequest("old", "new"), userId))
                     .isInstanceOf(UserNotFoundException.class);
         }
     }

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,11 +67,12 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     
-    @PreAuthorize("@accessControlService.isSelfByEmail(#request.email)")
     @PutMapping("/password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
-        log.debug("Password update attempt for email: {}", request.email());
-        passwordService.updatePassword(request);
+    public ResponseEntity<Void> updatePassword(
+            @Valid @RequestBody UpdatePasswordRequest request,
+            @AuthenticationPrincipal(expression = "claims['sub']") String userId) {
+        log.debug("Password update attempt for userId: {}", userId);
+        passwordService.updatePassword(request, UUID.fromString(userId));
         return ResponseEntity.noContent().build();
     }
 
