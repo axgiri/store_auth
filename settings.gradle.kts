@@ -1,1 +1,1 @@
-rootProject.name = "oldlab-auth"
+rootProject.name = "store-auth"
