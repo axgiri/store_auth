@@ -64,8 +64,8 @@ public class SecurityConfig {
                         "/api/v1/users/reset-password",
                         "/api/v1/otp/email/password-reset/send/**",
                         "/api/v1/.well-known/jwks.json",
-                        // "/actuator/prometheus/** i will implement it later TODO
-                        "/error"
+                        "/error",
+                        "/actuator/prometheus"
                     ).permitAll()
                     .anyRequest().authenticated()
                 )

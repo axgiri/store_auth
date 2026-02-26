@@ -77,3 +77,15 @@ logging:
     org:
       apache:
         kafka: WARN
+
+management:
+  server:
+    port: 51721
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
