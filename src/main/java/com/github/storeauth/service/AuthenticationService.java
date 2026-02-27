@@ -47,6 +47,7 @@ public class AuthenticationService {
         var userDetails = UserAdapter.fromUser(user);
         String token = tokenService.generateToken(userDetails);
         String refreshToken = refreshTokenService.issue(user);
+        log.info("user {} authenticated successfully", user.getIdempotencyKey());
         return new AuthResponse(token, refreshToken);
     }
 
