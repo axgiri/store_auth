@@ -91,11 +91,14 @@ management:
         enabled: true
   tracing:
     sampling:
-      probability: 1.0 
+      probability: 1.0
       # 100% of requests are traced. must lower to 0.1-0.5 in server for optimization
-  otlp:
+  opentelemetry:
     tracing:
-      endpoint: http://alloy:4318/v1/traces
+      export:
+        otlp:
+          endpoint: http://alloy:4318/v1/traces
+  otlp:
     metrics:
       export:
         enabled: false
