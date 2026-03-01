@@ -45,17 +45,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
-                        //that is public endpoints for gateway and auth service for tests.
-                        //but some endpoints will be open, due to there is no zero trust between services yet
-                        //i will implement zero trust later. but now my priority is to finish refactoring with observability and tests
                         "/api/v1/users/create",
                         "/api/v1/users/login",
                         "/api/v1/users/refresh",
                         "/api/v1/users/is-email-available",
-                        // "/api/v1/users/revoke",
-                        // "/api/v1/users/revoke/all",
-                        // "/api/v1/users/update/password",
-                        // "/api/v1/users/delete/**",
                         "/api/v1/otp/email/activation/send",
                         "/api/v1/otp/email/activation/resend",
                         "/api/v1/otp/email/activate",
@@ -64,6 +57,7 @@ public class SecurityConfig {
                         "/api/v1/users/reset-password",
                         "/api/v1/otp/email/password-reset/send/**",
                         "/api/v1/.well-known/jwks.json",
+                        "/api/v1/internal/grafana-auth",
                         "/error",
                         "/actuator/prometheus"
                     ).permitAll()
