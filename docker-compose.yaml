@@ -22,7 +22,7 @@ services:
         window: 120s
         
   store-auth-db:
-    image: postgres:13-alpine
+    image: postgres:18-alpine
     container_name: store-auth-db
     ports:
       - "51721:5432"
@@ -31,9 +31,14 @@ services:
       POSTGRES_PASSWORD: 1
       POSTGRES_DB: storeauthdb
     volumes:
-      - store-auth-db_data:/var/lib/postgresql/data
+      - store_auth_db_data:/var/lib/postgresql/data
     networks:
       - store-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d storeauthdb -h localhost || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: on-failure:3
     deploy:
       restart_policy:
@@ -42,9 +47,20 @@ services:
         max_attempts: 3
         window: 120s
 
+  store-auth-db-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.19.0
+    container_name: store-auth-db-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:1@store-auth-db:5432/storeauthdb?sslmode=disable"
+    depends_on:
+      store-auth-db:
+        condition: service_healthy
+    networks:
+      - store-network
+
 networks:
   store-network:
     external: true
 
 volumes:
-  store-auth-db_data:
+  store_auth_db_data:

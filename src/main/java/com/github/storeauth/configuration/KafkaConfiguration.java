@@ -52,7 +52,9 @@ public class KafkaConfiguration {
 
     @Bean
     public KafkaTemplate<String, NotificationMessage> notificationKafkaTemplate(ProducerFactory<String, NotificationMessage> producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
+        var template = new KafkaTemplate<>(producerFactory);
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean
@@ -69,6 +71,7 @@ public class KafkaConfiguration {
         var factory = new ConcurrentKafkaListenerContainerFactory<String, UserCreateRequest>();
         factory.setConsumerFactory(registrationConsumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
+        factory.getContainerProperties().setObservationEnabled(true);
         factory.setCommonErrorHandler(new DefaultErrorHandler(new FixedBackOff(1000L, 3)));
         return factory;
     }
@@ -83,7 +86,9 @@ public class KafkaConfiguration {
 
     @Bean
     public KafkaTemplate<String, RegistrationCompensateMessage> registrationCompensateKafkaTemplate(ProducerFactory<String, RegistrationCompensateMessage> producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
+        var template = new KafkaTemplate<>(producerFactory);
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean
