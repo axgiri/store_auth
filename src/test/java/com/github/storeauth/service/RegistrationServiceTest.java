@@ -34,6 +34,8 @@ class RegistrationServiceTest {
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private EventService eventService;
 
     @InjectMocks
     private RegistrationService registrationService;
@@ -136,6 +138,7 @@ class RegistrationServiceTest {
             registrationService.delete(key);
 
             verify(userRepository).delete(user);
+            verify(eventService).compensateRegistration(key);
         }
 
         @Test
