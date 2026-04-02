@@ -1,23 +1,11 @@
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
 	java
 	jacoco
 	id("org.springframework.boot") version "4.0.1"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("org.sonarqube") version "7.1.0.6387"
+	id("org.sonarqube") version "7.2.3.7755"
 }
 
-val envProps = Properties()
-val envFile = rootProject.file(".env")
-if (envFile.exists()) {
-	envProps.load(FileInputStream(envFile))
-}
-
-fun getEnv(key: String): String {
-	return envProps.getProperty(key) ?: System.getenv(key)  ?: error("$key is not set in .env or environment variables")
-}
 
 group = "com.github"
 version = "2.1.0-SNAPSHOT"
@@ -84,13 +72,8 @@ tasks.named("sonar") {
 
 sonar {
 	properties {
-		property("sonar.projectKey", "store_auth")
-		property("sonar.projectName", "store_auth")
-		property("sonar.sources", "src/main/java")
-		property("sonar.tests", "src/test/java")
-		property("sonar.junit.reportPaths", "build/test-results/test")
 		property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
-		property("sonar.host.url", getEnv("SONAR_HOST_URL"))
-		property("sonar.token", getEnv("SONAR_TOKEN"))
+		property("sonar.projectKey", "pk-f38670e9-3e0c-4963-8da0-1d668a894f26")
+		property("sonar.organization", "f0754731-11ca-43b4-8a6d-be5ad9ccc7a5")
 	}
 }

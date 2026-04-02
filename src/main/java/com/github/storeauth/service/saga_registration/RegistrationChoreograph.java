@@ -27,7 +27,6 @@ public class RegistrationChoreograph {
             registrationService.create(request);
         } catch(UserAlreadyExistsException e) {
             log.info("User with email {} already exists, skipping registration", request.email());
-            return;
         }
         catch (Exception e) {
             log.info("Error during user registration, initiating compensation for email: {}", request.email());
