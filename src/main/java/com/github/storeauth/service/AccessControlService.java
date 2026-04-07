@@ -2,6 +2,9 @@ package com.github.storeauth.service;
 
 import java.util.UUID;
 
+import com.github.storeauth.entity.Role;
+import com.github.storeauth.entity.User;
+import com.github.storeauth.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,12 +47,10 @@ public class AccessControlService {
             String userId = jwt.getClaimAsString("sub");
             UUID userIdUuid = UUID.fromString(userId);
 
-            return userRepository.findById(userIdUuid)
-                .map(user -> {
-                    String role = user.getRoleEnum().name();
-                    return role.equals("MODERATOR") || role.equals("ADMIN");
-                })
-                .orElse(false);
+            User user = userRepository.findById(userIdUuid)
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+            return user.getRoleEnum() == Role.MODERATOR || user.getRoleEnum() == Role.ADMIN;
         } catch (Exception e) {
             return false;
         }
