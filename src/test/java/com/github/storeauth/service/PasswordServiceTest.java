@@ -66,8 +66,9 @@ class PasswordServiceTest {
             when(userRepository.findByIdempotencyKey(userId)).thenReturn(Optional.of(user));
             when(passwordEncoder.matches("wrong", "encoded")).thenReturn(false);
 
+            var request = new UpdatePasswordRequest("wrong", "new");
             assertThatThrownBy(() ->
-                    passwordService.updatePassword(new UpdatePasswordRequest("wrong", "new"), userId))
+                    passwordService.updatePassword(request, userId))
                     .isInstanceOf(BadCredentialsException.class);
         }
 
@@ -77,8 +78,9 @@ class PasswordServiceTest {
             var userId = UUID.randomUUID();
             when(userRepository.findByIdempotencyKey(userId)).thenReturn(Optional.empty());
 
+            var request = new UpdatePasswordRequest("old", "new");
             assertThatThrownBy(() ->
-                    passwordService.updatePassword(new UpdatePasswordRequest("old", "new"), userId))
+                    passwordService.updatePassword(request, userId))
                     .isInstanceOf(UserNotFoundException.class);
         }
     }

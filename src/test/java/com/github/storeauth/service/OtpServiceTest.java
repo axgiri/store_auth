@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import com.github.storeauth.dto.request.ContactEmailRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -194,9 +195,11 @@ class OtpServiceTest {
         void activationOtp_throwsWhenNoUser() {
             when(userRepository.existsByEmail("x@t.com")).thenReturn(false);
 
-            assertThatThrownBy(() -> otpService.sendActivationOtp(
-                    new com.github.storeauth.dto.request.ContactEmailRequest("x@t.com")))
-                    .isInstanceOf(UserNotFoundException.class);
+            var req = new ContactEmailRequest("x@t.com");
+            assertThatThrownBy(() -> otpService.sendActivationOtp(req))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .hasMessageContaining("User not found");
+
         }
 
         @Test
