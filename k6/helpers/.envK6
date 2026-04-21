@@ -1,0 +1,10 @@
+BASE_URL=http://localhost:52720
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=k6
+DB_PASSWORD=root
+DB_NAME=k6db
+
+AUTH_PASSWORD=password
+AUTH_USERS_COUNT=50
+AUTH_USER_EMAIL_TEMPLATE=k6_user_%d@axgiri.tech
