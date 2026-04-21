@@ -1,0 +1,57 @@
+services:
+  store-auth:
+    image: eclipse-temurin:21-jdk-alpine
+    container_name: store-auth-k6
+    hostname: store-auth
+    ports:
+      - "52720:51720"
+    volumes:
+      - ../../:/app
+    working_dir: /app
+    environment:
+      SPRING_PROFILES_ACTIVE: k6
+    command: ./gradlew bootRun
+    depends_on:
+      - store-auth-db
+    networks:
+      - k6-network
+      - store-network
+    restart: on-failure:3
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+        
+  store-auth-db:
+    image: postgres:18-alpine
+    container_name: store-auth-db-k6
+    environment:
+      POSTGRES_USER: k6
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: k6db
+    volumes:
+      - store_auth_test_db_data:/var/lib/postgresql/data
+    networks:
+      - k6-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U k6 -d k6db -h localhost || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:3
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+networks:
+  k6-network:
+  store-network:
+    external: true
+
+volumes:
+  store_auth_test_db_data:

@@ -1,0 +1,63 @@
+server:
+  port: 51720
+
+spring:
+  threads:
+    virtual:
+      enabled: true
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  application:
+    name: store-auth
+  datasource:
+    url: jdbc:postgresql://store-auth-db:5432/k6db
+    username: k6
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  kafka:
+    bootstrap-servers: "kafka:9092"
+    producer:
+      acks: all
+      compression-type: zstd
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+    consumer:
+      group-id: store-auth-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+
+jwt:
+  issuer: k6@axgiri.tech
+  ttl-minutes: 30
+  refresh-ttl-days: 30
+  refresh-token-secret: 123456789qwerty123456789qwerty123456789qwerty
+  public-key: classpath:keys/public.pem
+  private-key: classpath:keys/private.pem
+  
+logging:
+  level:
+    root: INFO
+    org:
+      apache:
+        kafka: WARN
+
+management:
+  tracing:
+    sampling:
+      probability: 0.0
