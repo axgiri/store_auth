@@ -122,9 +122,9 @@ Common variables in `store_auth/k6/helpers/.envK6`:
 |--------------------|-------------------|
 | VM profile         | 4 vCPU / 4GB DDR4 |
 | Test duration      | 30s               |
-| Virtual users      | 540               |
-| Total requests     | 18842             |
-| Throughput (req/s) | 617.5             |
-| p95 latency (ms)   | 76.25             |
-| p99 latency (ms)   | N/A               |
+| Virtual users      | 750               |
+| Total requests     | 25010             |
+| Throughput (req/s) | 819.6             |
+| p95 latency (ms)   | 246.1             |
+| p90 latency (ms)   | 25.6              |
 | Error rate (%)     | 0                 |
