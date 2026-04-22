@@ -33,10 +33,10 @@ wait-app:
 	@set -e; \
 	i=0; \
 	ok=0; \
-	until [ $$ok -ge 5 ]; do \
+	until [ $$ok -ge 15 ]; do \
 		if curl -fsS "$(WAIT_URL)" > /dev/null; then \
 			ok=$$((ok+1)); \
-			echo "App HTTP endpoint ready check $$ok/5"; \
+			echo "App HTTP endpoint ready check $$ok/15"; \
 		else \
 			ok=0; \
 			i=$$((i+1)); \

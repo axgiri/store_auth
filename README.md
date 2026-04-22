@@ -69,3 +69,62 @@ If store_auth is degraded, login and session refresh degrade first, then all pro
 - https://github.com/axgiri/store_core
 - https://github.com/axgiri/store_chat
 - https://github.com/Scheldie/Notification_Reports
+
+## k6 Load Testing Guide
+
+This service has a ready-to-run k6 setup in `k6/`.
+
+### Prerequisites
+
+- Docker and Docker Compose
+- GNU make
+- k6 CLI installed locally
+
+### Quick Run
+
+Run the full flow (up, readiness checks, seed, test, cleanup):
+
+```bash
+make -f k6/main.mk run
+```
+
+### Step-by-Step Run
+
+Use this flow when debugging or tuning:
+
+```bash
+make -f k6/main.mk up
+make -f k6/main.mk wait-schema
+make -f k6/main.mk seed
+make -f k6/main.mk wait-app
+make -f k6/main.mk run-test
+make -f k6/main.mk down
+```
+
+Notes:
+
+- Seed data is loaded from `store_auth/k6/helpers/seed.sql`.
+- Short `curl: (56) Recv failure: Connection reset by peer` lines can appear during warm-up.
+- `.envK6` for this module is in `store_auth/k6/helpers/.envK6`.
+
+### k6 Tuning Knobs
+
+Common variables in `store_auth/k6/helpers/.envK6`:
+
+- `BASE_URL`
+- `AUTH_USERS_COUNT`
+- `AUTH_PASSWORD`
+- `AUTH_USER_EMAIL_TEMPLATE`
+
+### Capacity Template (VM: 4 vCPU, 4GB DDR4)
+
+| Metric             | Value             |
+|--------------------|-------------------|
+| VM profile         | 4 vCPU / 4GB DDR4 |
+| Test duration      | 5m                |
+| Virtual users      | 3000              |
+| Total requests     | 358362            |
+| Throughput (req/s) | 3100.5            |
+| p95 latency (ms)   | 481.13            |
+| p99 latency (ms)   | 377.94            |
+| Error rate (%)     | 0                 |
