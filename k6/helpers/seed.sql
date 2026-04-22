@@ -16,4 +16,4 @@ SELECT
     'USER',
     true,
     true
-FROM generate_series(1, 50) AS idx;
+FROM generate_series(1, 1500) AS idx;

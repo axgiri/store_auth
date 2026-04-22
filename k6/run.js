@@ -13,19 +13,19 @@ export const options = {
 		usersEmailAvailability: {
 			executor: 'constant-vus',
 			exec: 'usersEmailAvailabilityScenario',
-			vus: 10,
+			vus: 3300,
 			duration: '30s',
 		},
 		usersLogin: {
 			executor: 'constant-vus',
 			exec: 'usersLoginScenario',
-			vus: 10,
+			vus: 200,
 			duration: '30s',
 		},
 		usersRefresh: {
 			executor: 'constant-vus',
 			exec: 'usersRefreshScenario',
-			vus: 10,
+			vus: 200,
 			duration: '30s',
 		},
 	},
